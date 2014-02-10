@@ -1,5 +1,5 @@
-Heaps
-=====
+Heap
+====
 
 An implementation of thread-safe generic heaps in C.
 
