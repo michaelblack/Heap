@@ -148,5 +148,3 @@ heap * resize_heap(heap * h, int new_maxsize) {
 int (*heap_compare(heap * h)) (void *, void *) {
   return h->compare;
 }
-
-#endif
