@@ -9,7 +9,7 @@ heap * make_heap(int maxsize, int (*compare)(void *, void *));
 heap * insert(heap * h, void * item);
 void * delete(heap * h);
     
-void for_each(heap * h, void (*)(void *));
+void for_each(heap * h, void (*function)(void *));
 void free_heap(heap * h);
 
 int heap_size(heap * h);
