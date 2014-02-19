@@ -3,11 +3,13 @@
 #include "heap.h"
 
 struct heap {
-  int maxsize;
-  pthread_mutex_t lock;
-  int size;
-  void ** array;
-  int (*compare)(void *, void *);
+  int maxsize; // The size of array
+  pthread_mutex_t lock; // To be locked by applications that modify the queue
+  int size; // The size of the heap / the position of the last element in array
+  void ** array; // The internal representation of the heap
+  int (*compare)(void *, void *); // The comparison function to sort the heap
+                                  // >0 results means the first argument is greater
+                                  // and will be sorted towards the top
 };
 
 // Makes a heap from a maximum internal size and a comparison function
@@ -35,7 +37,8 @@ void free_heap(heap * h) {
 // Inserts an item into the heap
 heap * insert(heap * h, void * item) {
   pthread_mutex_lock(&(h->lock));
-  
+ 
+  // Puts item in the last position of the heap 
   h->size++;
   int position = h->size;
   h->array[position] = item;
@@ -78,13 +81,13 @@ void * delete(heap * h) {
       largest_child = position*2; // the largest child is on the left
     }
     
-    if((*h->compare)(h->array[position], h->array[largest_child]) <=0) { // if the parent's smaller than the child
+    if((*h->compare)(h->array[position], h->array[largest_child]) <=0) { // if the parent's smaller than the larger child
       void * temp = h->array[largest_child];
       h->array[largest_child] = h->array[position];                      // then swap them
       h->array[position] = temp;
     }
 
-    position = largest_child; //repeat with the largest child
+    position = largest_child; //repeat from the new position
   }
 
 
@@ -95,6 +98,7 @@ void * delete(heap * h) {
 // Takes a heap and a function and calls the function on each element of the heap (e.g. for_each(myheap, &print_int))
 void for_each(heap * h, void(*foo)(void *)) {
   pthread_mutex_lock(&(h->lock));
+
   for(int i = 1; i <= h->size; i++)
     foo(h->array[i]);
   
@@ -102,6 +106,7 @@ void for_each(heap * h, void(*foo)(void *)) {
 }
 
 // Sorts an array by putting it into a heap and then removing each item in order back into the original array
+// Not an in place sort
 void heap_sort(void * arr[], int size, int (*compare)(void *, void *)) {
   heap * h = make_heap(size, compare);
   for(int i = 0; i < size; i++)
